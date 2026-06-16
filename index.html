@@ -2351,6 +2351,7 @@ async function saveAll(){
   const promises=[];
   document.querySelectorAll("input:not(.tip-input):not(#new-player-name)").forEach(el=>{
     if(!el.id) return;
+    if(el.id.includes("-tg-")) return; // tip-list result display mirrors, not real score inputs
     sv(el.id, el.value);
     // sync score inputs to DB
     if(el.id.endsWith("-h")||el.id.endsWith("-hs")){
