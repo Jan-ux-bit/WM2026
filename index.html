@@ -260,6 +260,19 @@ body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--white);m
 .tv-de{background:rgba(255,204,0,0.1);color:#ffd966;border:0.5px solid rgba(255,204,0,0.25)}
 .tv-ch{background:rgba(255,80,80,0.1);color:#ffaaaa;border:0.5px solid rgba(255,80,80,0.2)}
 .tv-stream{background:rgba(30,111,255,0.15);color:var(--sky);border:0.5px solid rgba(77,159,255,0.3)}
+/* ═══ TIP LIST ROWS (Gruppenspiele) ═══ */
+.tip-list-row{background:var(--glass);border:0.5px solid var(--gb);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.tip-list-row.dach-highlight{border-color:rgba(240,192,64,0.4);box-shadow:0 0 16px rgba(240,192,64,0.1)}
+.tip-list-row.live-game{border-color:rgba(239,51,64,0.6);box-shadow:0 0 12px rgba(239,51,64,0.15)}
+.tip-list-row.finished-game{opacity:0.85}
+.tip-list-row .tip-row{margin-top:10px;cursor:default}
+.tip-details{max-height:0;overflow:hidden;transition:max-height .25s ease;cursor:default}
+.tip-details.open{max-height:220px;margin-top:10px}
+.result-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(30,111,255,0.15);color:var(--sky);border:0.5px solid rgba(77,159,255,0.3)}
+.result-badge.correct{background:rgba(10,92,30,0.3);color:#4dff9f;border-color:rgba(77,255,159,0.3)}
+.result-badge.partial{background:rgba(240,192,64,0.15);color:var(--gold);border-color:rgba(240,192,64,0.3)}
+.result-badge.wrong{background:rgba(168,212,255,0.08);color:rgba(168,212,255,0.5);border-color:rgba(77,159,255,0.15)}
+
 .ticker-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
 .tfilter-btn{background:rgba(16,69,160,0.2);border:0.5px solid var(--gb);border-radius:20px;color:var(--ice);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;padding:5px 14px;cursor:pointer;transition:all .2s;text-transform:uppercase}
 .tfilter-btn.active{background:var(--bright);color:#fff;border-color:var(--bright)}
@@ -1531,6 +1544,7 @@ function sv(k,v){try{localStorage.setItem("wm26_"+k,v)}catch(e){}}
 function ld(k){try{return localStorage.getItem("wm26_"+k)||""}catch(e){return""}}
 function svJ(k,v){try{localStorage.setItem("wm26_"+k,JSON.stringify(v))}catch(e){}}
 function ldJ(k,def){try{const r=localStorage.getItem("wm26_"+k);return r?JSON.parse(r):def}catch(e){return def}}
+function getPlayerTips(name){ return tips[name]||{} }
 
 // ── DB OPERATIONS ──
 async function dbSaveTips(playerName, tipsObj) {
@@ -1624,6 +1638,8 @@ async function loadAllFromDB() {
       if(dA) dA.textContent=r.score_a||"–";
     });
   }
+  buildTipGames();
+  buildGroups();
   renderLeaderboard();
   refreshTips();
 }
@@ -1885,7 +1901,7 @@ function doLogin(player,silent=false,remember=true){
   if(cu)cu.innerHTML=`${flagImg(player.flag,"fi-sm")} ${player.name}`;
   const adminBtn=document.getElementById("admin-btn");
   if(adminBtn)adminBtn.style.display=isAdmin(player.name)?"block":"none";
-  if(configured){loadAllFromDB();subscribeRealtime();}
+  if(configured){loadAllFromDB().then(()=>{subscribeRealtime();});}
   if(!silent)showToast("👋",`Willkommen, ${player.name}!`,configured?"Echtzeit-Sync aktiv ✓":"Offline-Modus",3000);
   refreshTips();
   renderLeaderboard();
@@ -1938,57 +1954,99 @@ function getCardStatus(dateStr) {
   return "finished";
 }
 
+function gamePoints(tipH,tipA,resH,resA){
+  if(tipH===""||tipA===""||resH===""||resA==="")return null;
+  const th=parseInt(tipH),ta=parseInt(tipA),rh=parseInt(resH),ra=parseInt(resA);
+  if(th===rh&&ta===ra)return 3;
+  if(Math.sign(rh-ra)===Math.sign(th-ta))return 1;
+  return 0;
+}
+
+function toggleTipRow(id){
+  const d=document.getElementById(id+"-tipdetails");
+  if(d)d.classList.toggle("open");
+}
+
 function buildTipGames(){
   const c=document.getElementById("tip-games-content"); c.innerHTML="";
+  const pt=currentUser?getPlayerTips(currentUser.name):{};
   Object.keys(GROUPS).forEach(gk=>{
     const {teams,games}=GROUPS[gk];
-    const cards=games.map((g,i)=>{
-      const hT=teams[g.h], aT=teams[g.a];
-      const id=`gg-${gk}-${i}`;
-      const dach=isDACH(hT.n)||isDACH(aT.n);
-      const status=getCardStatus(g.date);
-      const locked=status!=="upcoming";
-      let cardClass="game-card";
-      if(dach) cardClass+=" dach-highlight";
-      if(locked) cardClass+=" locked";
-      if(status==="live") cardClass+=" live-game";
-      if(status==="finished") cardClass+=" finished-game";
-      const statusBadge=status==="live"
-        ?`<span class="status-live"><span class="live-dot"></span>LIVE</span>`
-        :status==="finished"
-        ?`<span class="tip-locked">✓ Beendet – gesperrt</span>`
-        :dach?`<span class="dach-badge">DACH</span>`:"";
-      return `<div class="${cardClass}">
-        <div class="game-meta">Gruppe ${gk} · ${g.ds} ${statusBadge}</div>
-        <div class="game-venue">${g.v}</div>
-        <div class="game-row">
-          <span class="team-name">${flagImg(hT.f)}<span class="tn-text">${hT.n}</span></span>
-          <div class="live-score-display" id="${id}-display">
-            <span class="live-score-val" id="${id}-h-disp">${ld(id+"-h")||"–"}</span>
+    const byDay={};
+    games.forEach((g,i)=>{
+      const d=new Date(g.date);
+      const key=d.toLocaleDateString("de-AT",{weekday:"long",day:"numeric",month:"long"});
+      if(!byDay[key])byDay[key]=[];
+      byDay[key].push({g,i});
+    });
+    let groupHtml=`<div class="round-title">Gruppe ${gk}</div>`;
+    Object.keys(byDay).forEach(day=>{
+      groupHtml+=`<div class="ticker-day">📅 ${day}</div>`;
+      groupHtml+=byDay[day].map(({g,i})=>{
+        const hT=teams[g.h], aT=teams[g.a];
+        const id=`gg-${gk}-${i}`;
+        const dach=isDACH(hT.n)||isDACH(aT.n);
+        const status=getCardStatus(g.date);
+        const locked=status!=="upcoming";
+        const resH=ld(id+"-h"), resA=ld(id+"-a");
+        const hasResult=resH!==""&&resA!=="";
+        let rowClass="tip-list-row";
+        if(dach) rowClass+=" dach-highlight";
+        if(locked) rowClass+=" locked";
+        if(status==="live") rowClass+=" live-game";
+        if(status==="finished") rowClass+=" finished-game";
+        const statusBadge=status==="live"
+          ?`<span class="status-live"><span class="live-dot"></span>LIVE</span>`
+          :status==="finished"
+          ?`<span class="tip-locked">✓ Beendet – gesperrt</span>`
+          :dach?`<span class="dach-badge">DACH</span>`:"";
+
+        const myTip=pt[id];
+        const pts=myTip?gamePoints(myTip.h,myTip.a,resH,resA):null;
+        let resultBadge="";
+        if(hasResult&&myTip&&myTip.h!==""&&myTip.a!==""){
+          const cls=pts===3?"correct":pts===1?"partial":"wrong";
+          resultBadge=`<span class="result-badge ${cls}">🎲 ${myTip.h}:${myTip.a} <b>${pts===null?"–":"+"+pts}</b></span>`;
+        }
+
+        const centerEl=`<div class="live-score-display" id="${id}-display">
+            <span class="live-score-val" id="${id}-h-disp">${resH||"–"}</span>
             <span class="live-score-sep">:</span>
-            <span class="live-score-val" id="${id}-a-disp">${ld(id+"-a")||"–"}</span>
+            <span class="live-score-val" id="${id}-a-disp">${resA||"–"}</span>
           </div>
-          <input type="hidden" id="${id}-h" value="${ld(id+"-h")}">
-          <input type="hidden" id="${id}-a" value="${ld(id+"-a")}">
-          <span class="team-name right">${flagImg(aT.f)}<span class="tn-text">${aT.n}</span></span>
-        </div>
-        <div class="tip-row">
-          <span class="tip-label">Tipp:</span>
-          <input class="tip-input" type="number" min="0" data-gid="${id}" data-side="h" placeholder="–" ${locked?"disabled":""}>
-          <span class="tip-sep">:</span>
-          <input class="tip-input" type="number" min="0" data-gid="${id}" data-side="a" placeholder="–" ${locked?"disabled":""}>
-        </div>
-        ${!locked?`<div class="scorer-row">
-          <div class="scorer-label">⚽ Torschütze tippen</div>
-          <input class="scorer-input tip-scorer" data-gid="${id}" placeholder="z.B. Ronaldo...">
-        </div>
-        <div class="scorer-row">
-          <div class="scorer-label">💬 Kommentar</div>
-          <input class="scorer-input tip-comment" data-gid="${id}" placeholder="Deine Meinung...">
-        </div>`:""}
-      </div>`;
-    }).join("");
-    c.innerHTML+=`<div class="round-title">Gruppe ${gk}</div><div class="games-grid">${cards}</div>`;
+          <input type="hidden" id="${id}-h" value="${resH}">
+          <input type="hidden" id="${id}-a" value="${resA}">`;
+
+        return `<div class="${rowClass}" onclick="toggleTipRow('${id}')">
+          <div class="ticker-game-header">
+            <span class="ticker-meta">${g.ds} · ${g.v}</span>
+            ${statusBadge}${resultBadge}
+          </div>
+          <div class="ticker-teams">
+            <span class="ticker-team">${flagImg(hT.f)} ${hT.n}</span>
+            ${centerEl}
+            <span class="ticker-team right">${aT.n} ${flagImg(aT.f)}</span>
+          </div>
+          ${!locked?`<div class="tip-row" onclick="event.stopPropagation()">
+            <span class="tip-label">Tipp:</span>
+            <input class="tip-input" type="number" min="0" data-gid="${id}" data-side="h" placeholder="–">
+            <span class="tip-sep">:</span>
+            <input class="tip-input" type="number" min="0" data-gid="${id}" data-side="a" placeholder="–">
+          </div>`:""}
+          ${!locked?`<div class="tip-details" id="${id}-tipdetails" onclick="event.stopPropagation()">
+            <div class="scorer-row">
+              <div class="scorer-label">⚽ Torschütze tippen</div>
+              <input class="scorer-input tip-scorer" data-gid="${id}" placeholder="z.B. Ronaldo...">
+            </div>
+            <div class="scorer-row">
+              <div class="scorer-label">💬 Kommentar</div>
+              <input class="scorer-input tip-comment" data-gid="${id}" placeholder="Deine Meinung...">
+            </div>
+          </div>`:""}
+        </div>`;
+      }).join("");
+    });
+    c.innerHTML+=groupHtml;
   });
   refreshTips();
 }
