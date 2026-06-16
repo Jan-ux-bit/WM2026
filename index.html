@@ -1634,8 +1634,12 @@ async function loadAllFromDB() {
       sv(r.game_id+"-a", r.score_a);
       const dH=document.getElementById(r.game_id+"-h-disp");
       const dA=document.getElementById(r.game_id+"-a-disp");
-      if(dH) dH.textContent=r.score_h||"–";
-      if(dA) dA.textContent=r.score_a||"–";
+      if(dH) dH.textContent=r.score_h!==""&&r.score_h!=null?r.score_h:"–";
+      if(dA) dA.textContent=r.score_a!==""&&r.score_a!=null?r.score_a:"–";
+      const tgH=document.getElementById(r.game_id+"-tg-h-disp");
+      const tgA=document.getElementById(r.game_id+"-tg-a-disp");
+      if(tgH) tgH.textContent=r.score_h!==""&&r.score_h!=null?r.score_h:"–";
+      if(tgA) tgA.textContent=r.score_a!==""&&r.score_a!=null?r.score_a:"–";
     });
   }
   buildTipGames();
@@ -2011,13 +2015,13 @@ function buildTipGames(){
           resultBadge=`<span class="result-badge ${cls}">🎲 ${myTip.h}:${myTip.a} <b>${pts===null?"–":"+"+pts}</b></span>`;
         }
 
-        const centerEl=`<div class="live-score-display" id="${id}-display">
-            <span class="live-score-val" id="${id}-h-disp">${resH||"–"}</span>
+        const centerEl=`<div class="live-score-display" id="${id}-tg-display">
+            <span class="live-score-val" id="${id}-tg-h-disp">${resH!==""?resH:"–"}</span>
             <span class="live-score-sep">:</span>
-            <span class="live-score-val" id="${id}-a-disp">${resA||"–"}</span>
+            <span class="live-score-val" id="${id}-tg-a-disp">${resA!==""?resA:"–"}</span>
           </div>
-          <input type="hidden" id="${id}-h" value="${resH}">
-          <input type="hidden" id="${id}-a" value="${resA}">`;
+          <input type="hidden" id="${id}-tg-h" value="${resH}">
+          <input type="hidden" id="${id}-tg-a" value="${resA}">`;
 
         return `<div class="${rowClass}" onclick="toggleTipRow('${id}')">
           <div class="ticker-game-header">
@@ -2116,7 +2120,7 @@ function buildGroupGames(){
       const dach=isDACH(hT.n)||isDACH(aT.n);
       const status=getCardStatus(g.date);
       const rh=ld(id+"-h"), ra=ld(id+"-a");
-      const scoreH=rh||"–", scoreA=ra||"–";
+      const scoreH=rh!==""?rh:"–", scoreA=ra!==""?ra:"–";
       let statusBadge="";
       if(status==="live") statusBadge=`<span class="status-live"><span class="live-dot"></span>LIVE</span>`;
       else if(status==="finished") statusBadge=`<span class="status-finished">✓ Beendet</span>`;
@@ -2971,6 +2975,11 @@ function applyResult(gameRef, scoreHome, scoreAway){
   const dA=document.getElementById(id+"-a-disp");
   if(dH&&dA){dH.textContent=h;dA.textContent=a;}
 
+  // update tippspiel-list display spans (separate ids, see buildTipGames)
+  const tgH=document.getElementById(id+"-tg-h-disp");
+  const tgA=document.getElementById(id+"-tg-a-disp");
+  if(tgH&&tgA){tgH.textContent=h;tgA.textContent=a;}
+
   // update KO display spans
   const ksH=document.getElementById(id+"-hs-disp");
   const ksA=document.getElementById(id+"-as-disp");
@@ -2987,8 +2996,9 @@ function applyResult(gameRef, scoreHome, scoreAway){
         }
         elH.value=h; elA.value=a;
         sv(id+"-h",h); sv(id+"-a",a);
-        // also rebuild groups table
+        // also rebuild groups table and tippspiel list
         buildGroups();
+        buildTipGames();
         return true;
       }
     }
