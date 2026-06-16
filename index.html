@@ -1976,13 +1976,15 @@ function buildTipGames(){
     games.forEach((g,i)=>{
       const d=new Date(g.date);
       const key=d.toLocaleDateString("de-AT",{weekday:"long",day:"numeric",month:"long"});
-      if(!byDay[key])byDay[key]=[];
-      byDay[key].push({g,i});
+      if(!byDay[key])byDay[key]={date:d,items:[]};
+      byDay[key].items.push({g,i});
     });
+    const dayKeys=Object.keys(byDay).sort((a,b)=>byDay[a].date-byDay[b].date);
+    dayKeys.forEach(k=>byDay[k].items.sort((x,y)=>new Date(x.g.date)-new Date(y.g.date)));
     let groupHtml=`<div class="round-title">Gruppe ${gk}</div>`;
-    Object.keys(byDay).forEach(day=>{
+    dayKeys.forEach(day=>{
       groupHtml+=`<div class="ticker-day">📅 ${day}</div>`;
-      groupHtml+=byDay[day].map(({g,i})=>{
+      groupHtml+=byDay[day].items.map(({g,i})=>{
         const hT=teams[g.h], aT=teams[g.a];
         const id=`gg-${gk}-${i}`;
         const dach=isDACH(hT.n)||isDACH(aT.n);
