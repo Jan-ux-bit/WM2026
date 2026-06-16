@@ -1,0 +1,245 @@
+═══════════════════════════════════════════════════════════════
+  WM 2026 TIPPSPIEL — PROJEKTDOKUMENTATION
+  Stand: Juni 2026
+═══════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  HOSTING & URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Aktuell (Netlify - läuft aus!):
+  https://delightful-bombolone-13690f.netlify.app
+
+  Neu (GitHub Pages - kostenlos für immer):
+  https://jan-ux-bit.github.io/WM2026
+  → Repository: https://github.com/Jan-ux-bit/WM2026
+
+  Datei: index.html (eine einzelne HTML-Datei, alles drin)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DATENBANK — SUPABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Projekt:    WM2026
+  Projekt-ID: jyayczeazlmsangixzgx
+  URL:        https://jyayczeazlmsangixzgx.supabase.co
+  Dashboard:  https://supabase.com/dashboard/project/jyayczeazlmsangixzgx
+
+  Anon Key:
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5YXljemVhemxtc2FuZ2l4emd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTQ5NDIsImV4cCI6MjA5NjY5MDk0Mn0.ctJsZJiEUW7wnSiINugpMSV9mH3ugbajyuY7WDIckYQ
+
+  Tabellen (alle mit RLS + Policy "all"):
+  ✅ players   — Name, Flagge, Passwort
+  ✅ tips      — Spieltipps pro Spieler
+  ✅ results   — Spielergebnisse
+  ✅ chat      — Gruppen-Chat Nachrichten
+  ✅ wmtips    — Weltmeister-Tipp pro Spieler
+
+  ⚠️  WICHTIG: Nach jedem Supabase-Neustart prüfen:
+  Data API → Settings → Exposed Tables → alle 5 aktivieren!
+  Sonst funktioniert der Login nicht!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LIVE-DATEN API
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Service:  football-data.org
+  API Key:  a061c65996cf46f89923b64ac3ea83c5
+  Plan:     Free Tier
+  Funktion: Automatische Spielergebnisse alle 60 Sekunden
+            während der WM (11. Juni – 19. Juli 2026)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ADMIN-ZUGANG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Admin-User: jan  (im Code: const ADMIN_USER = "jan")
+  → Nur "jan" sieht den ⚙️ ADMIN Button oben rechts
+
+  Admin-Panel Funktionen:
+  - Spieler verwalten (anlegen, löschen, PW ändern, Flagge ändern)
+  - Alle Tipps einsehen & zurücksetzen
+  - Ergebnisse manuell setzen oder löschen
+  - Chat moderieren (Nachrichten löschen)
+  - Datenbank-Übersicht & JSON-Export
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FEATURES ÜBERSICHT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  NAVIGATION:
+  🎯 Tippspiel    — Hauptseite mit allen Gruppenspielen
+  📺 Ticker & TV  — Live-Ticker mit TV-Sender-Info
+  🇦🇹🇩🇪🇨🇭 DACH  — Countdown für AT/DE/CH Spiele
+  📰 News         — WM-News & Artikel
+  🏆 K.o.-Baum   — Alle K.o.-Runden mit Tipp-Feldern
+  👕 Teams        — Teamprofile, Kader, YouTube-Highlights
+  📊 Analyse      — Wahrscheinlichkeiten & DACH-Prognosen
+  📋 Spielplan ▾  — Untermenü: Tabellen, Spiele, alle K.o.-Runden
+
+  TIPPSPIEL:
+  - Tipps für alle 104 Spiele (Gruppe + K.o.)
+  - Torschützen-Tipp pro Spiel
+  - Kommentar-Feld pro Spiel
+  - Tipps gesperrt sobald Spiel beginnt
+  - Weltmeister-Tipp (+5 Punkte wenn richtig)
+
+  PUNKTE:
+  - Exaktes Ergebnis:    3 Punkte
+  - Richtiger Sieger/X:  1 Punkt
+  - Richtiger Torschütze: +1 Punkt
+  - Weltmeister richtig: +5 Punkte
+
+  RANGLISTE:
+  - Echtzeit-Punkte für alle Spieler
+  - Streak-Badge 🔥 bei 3+ richtigen in Folge
+  - Achievements/Badges (Hellseher, DACH-Experte, etc.)
+  - Siegerehrung mit Podium + Konfetti
+
+  LIVE-FEATURES:
+  - Ergebnisse automatisch via football-data.org API
+  - K.o.-Teams automatisch eingetragen wenn Gruppen fertig
+  - Live-Chat mit automatischen Tor-Meldungen (LiveBot)
+  - Echtzeit-Sync via Supabase Realtime
+
+  SOZIALES:
+  - Gruppen-Chat (💬 Button unten rechts)
+  - Reaktionen auf Tipps anderer (👏😱🔥)
+  - QR-Code zum Teilen
+  - Push-Notifications (🔔 Button)
+  - WM-Hymne bei Führungswechsel 😄
+
+  DESIGN:
+  - Dreiländer-Hintergrund USA/Kanada/Mexiko animiert
+  - Dunkles WM-Theme mit Gold/Blau
+  - Vollständig mobile-optimiert
+  - Inline SVG-Flaggen (funktioniert auf Windows)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LOGIN & REGISTRIERUNG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Registrieren: Name → Flagge → Passwort (mind. 3 Zeichen)
+  Anmelden:     Name → Passwort
+  Session:      30 Tage in localStorage gespeichert
+                (automatisch eingeloggt beim nächsten Besuch)
+
+  Passwörter: Im Klartext in Supabase gespeichert
+              (kein Hashing — bewusst simpel gehalten)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  GITHUB PAGES EINRICHTEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. github.com/Jan-ux-bit/WM2026 öffnen
+  2. index.html hochladen (uploading an existing file)
+  3. Commit changes klicken
+  4. Settings → Pages → Branch: main → Save
+  5. Warten ~2 Minuten
+  6. URL: https://jan-ux-bit.github.io/WM2026
+
+  Update hochladen:
+  → Einfach neue index.html ins Repository hochladen
+  → "Commit changes" → automatisch live in 1 Minute
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SUPABASE SQL — TABELLEN ERSTELLEN (falls neu aufsetzen)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  create table players (name text primary key, flag text, pw text);
+  create table tips (id serial primary key, player text, game_id text, tip_h text, tip_a text);
+  create table results (game_id text primary key, score_h text, score_a text);
+  create table wmtips (player text primary key, team text);
+  create table chat (id serial primary key, player text, flag text, message text, created_at timestamptz default now());
+
+  alter table players enable row level security;
+  alter table tips enable row level security;
+  alter table results enable row level security;
+  alter table wmtips enable row level security;
+  alter table chat enable row level security;
+
+  create policy "all" on players for all using (true) with check (true);
+  create policy "all" on tips for all using (true) with check (true);
+  create policy "all" on results for all using (true) with check (true);
+  create policy "all" on wmtips for all using (true) with check (true);
+  create policy "all" on chat for all using (true) with check (true);
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  WM 2026 GRUPPEN (DACH-Teams fett markiert)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Gruppe A: Mexiko, Südafrika, Südkorea, Tschechien
+  Gruppe B: Kanada, Bosnien-Herz., Katar, **SCHWEIZ**
+  Gruppe C: Brasilien, Marokko, Haiti, Schottland
+  Gruppe D: USA, Paraguay, Australien, Türkei
+  Gruppe E: **DEUTSCHLAND**, Curaçao, Elfenbeinküste, Ecuador
+  Gruppe F: Niederlande, Japan, Schweden, Tunesien
+  Gruppe G: Belgien, Ägypten, Iran, Neuseeland
+  Gruppe H: Spanien, Kap Verde, Saudi-Arabien, Uruguay
+  Gruppe I: Frankreich, Senegal, Irak, Norwegen
+  Gruppe J: Argentinien, Algerien, **ÖSTERREICH**, Jordanien
+  Gruppe K: Portugal, DR Kongo, Usbekistan, Kolumbien
+  Gruppe L: England, Kroatien, Ghana, Panama
+
+  WM-Termine: 11. Juni – 19. Juli 2026
+  Gastgeberländer: USA 🇺🇸, Kanada 🇨🇦, Mexiko 🇲🇽
+  Finale: 19. Juli 2026, MetLife Stadium, New Jersey
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TV-SENDER ÖSTERREICH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  DACH-Spiele:  ORF 1, ORF Sport+, ServusTV
+  Alle Spiele:  ORF Sport+, ServusTV (ausgewählte)
+  Stream:       FIFA+ (kostenlos), ORF TVthek
+
+  Deutschland:  ARD, ZDF (alle Spiele)
+  Schweiz:      SRF 1, SRF zwei
+
+  Links:
+  ORF TVthek:   https://tvthek.orf.at
+  ServusTV:     https://www.servustv.com/sport
+  ARD:          https://www.ardmediathek.de
+  ZDF:          https://www.zdf.de
+  SRF:          https://www.srf.ch/play/tv/live
+  FIFA+:        https://www.fifa.com/fifaplus
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TECH STACK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Vanilla HTML/CSS/JavaScript (kein Framework)
+  - Eine einzige index.html (~4600 Zeilen)
+  - Supabase (PostgreSQL + Realtime + REST API)
+  - football-data.org API (Live-Ergebnisse)
+  - Google Fonts: Barlow Condensed, Barlow
+  - QRCode.js (jsDelivr CDN)
+  - Inline SVG Flaggen (Windows-kompatibel)
+  - localStorage als Offline-Fallback
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  BEKANNTE EINSCHRÄNKUNGEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Supabase Free Tier: Projekt pausiert nach 1 Woche Inaktivität
+    → Lösung: Projekt im Dashboard manuell reaktivieren
+  - Exposed Tables müssen nach Supabase-Neustart neu gesetzt werden
+  - Live-API (football-data.org) hat Rate Limits im Free Tier
+  - Passwörter im Klartext (kein bcrypt) — bewusst simpel
+  - Push-Notifications nur in unterstützten Browsern
+
+
+═══════════════════════════════════════════════════════════════
+  Erstellt mit Claude (Anthropic) — Juni 2026
+═══════════════════════════════════════════════════════════════
